@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COSTAR提问策略转换器</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #94a3b8;
+            --accent-primary: #6366f1;
+            --accent-secondary: #4f46e5;
+            --success-color: #22c55e;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            --card-hover-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        html[data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #e2e8f0;
+            --text-tertiary: #cbd5e0;
+            --accent-primary: #818cf8;
+            --accent-secondary: #6366f1;
+            --success-color: #4ade80;
+            --border-color: #334155;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.2);
+            --card-hover-shadow: 0 10px 15px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body {
+            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .logo i {
+            font-size: 1.75rem;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+        }
+
+        .theme-toggle:hover {
+            color: var(--accent-primary);
+            background-color: var(--bg-secondary);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--bg-primary);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent-primary);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            resize: vertical;
+            min-height: 150px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: var(--accent-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .btn.secondary:hover {
+            background-color: var(--border-color);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .output-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-format {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-area {
+            flex-grow: 1;
+            margin-bottom: 1rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .output-item {
+            margin-bottom: 1.25rem;
+        }
+
+        .output-item-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .output-item-content {
+            padding-left: 1.75rem;
+            color: var(--text-primary);
+        }
+
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .copy-btn:hover {
+            color: var(--accent-primary);
+            background-color: var(--bg-secondary);
+        }
+
+        .copy-msg {
+            display: inline-block;
+            margin-left: 1rem;
+            color: var(--success-color);
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .copy-msg.show {
+            opacity: 1;
+        }
+
+        .accordion {
+            margin-top: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--bg-secondary);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .accordion-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .accordion-content.active {
+            padding: 1rem;
+            max-height: 500px;
+        }
+
+        .help-section {
+            margin-top: 2rem;
+        }
+
+        .help-item {
+            margin-bottom: 1rem;
+        }
+
+        .help-item h4 {
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-comments"></i>
+                <span>COSTAR提问策略转换器</span>
+            </div>
+            <button id="theme-toggle" class="theme-toggle" aria-label="切换主题">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+
+        <div class="main-content">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-question-circle"></i>
+                    <span>输入问题</span>
+                </div>
+                <div class="input-group">
+                    <label for="question-input">请输入你的问题或请求:</label>
+                    <textarea id="question-input" placeholder="例如: 帮我写一篇关于人工智能的文章"></textarea>
+                </div>
+                <div class="button-group">
+                    <button id="convert-btn" class="btn">
+                        <i class="fas fa-magic"></i> 转换为COSTAR格式
+                    </button>
+                    <button id="clear-btn" class="btn secondary">
+                        <i class="fas fa-eraser"></i> 清除
+                    </button>
+                </div>
+            </div>
+
+            <div class="card output-section">
+                <div class="card-title">
+                    <i class="fas fa-file-alt"></i>
+                    <span>COSTAR提问格式</span>
+                </div>
+                <div class="output-format">
+                    <div class="output-area">
+                        <div id="output-content">
+                            <div class="output-item">
+                                <div class="output-item-header">
+                                    <i class="fas fa-map-marker-alt"></i> C - CONTEXT (背景信息)
+                                </div>
+                                <div class="output-item-content">
+                                    <p>请提供与您的问题相关的背景信息，帮助我更好地理解您的具体情境。</p>
+                                </div>
+                            </div>
+                            <div class="output-item">
+                                <div class="output-item-header">
+                                    <i class="fas fa-bullseye"></i> O - OBJECTIVE (任务目标)
+                                </div>
+                                <div class="output-item-content">
+                                    <p>您希望通过这个问题达成什么具体目标？</p>
+                                </div>
+                            </div>
+                            <div class="output-item">
+                                <div class="output-item-header">
+                                    <i class="fas fa-font"></i> S - STYLE (写作风格)
+                                </div>
+                                <div class="output-item-content">
+                                    <p>您希望回答采用什么样的写作风格？(例如：学术、通俗、技术、简洁等)</p>
+                                </div>
+                            </div>
+                            <div class="output-item">
+                                <div class="output-item-header">
+                                    <i class="fas fa-comment-dots"></i> T - TONE (情感语调)
+                                </div>
+                                <div class="output-item-content">
+                                    <p>您期望回答的情感基调或语气是怎样的？(例如：正式、友好、严肃、幽默等)</p>
+                                </div>
+                            </div>
+                            <div class="output-item">
+                                <div class="output-item-header">
+                                    <i class="fas fa-users"></i> A - AUDIENCE (受众)
+                                </div>
+                                <div class="output-item-content">
+                                    <p>最终内容的目标读者是谁？(例如：专业人士、初学者、学生等)</p>
+                                </div>
+                            </div>
+                            <div class="output-item">
+                                <div class="output-item-header">
+                                    <i class="fas fa-reply"></i> R - RESPONSE (响应格式)
+                                </div>
+                                <div class="output-item-content">
+                                    <p>您期望的回应形式和结构是怎样的？(例如：列表、图表、分步指南等)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="copy-btn" class="copy-btn">
+                        <i class="fas fa-copy"></i> 复制内容
+                        <span id="copy-msg" class="copy-msg">已复制到剪贴板!</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="help-section">
+            <div class="accordion">
+                <div class="accordion-header" id="help-header">
+                    <span>什么是COSTAR提问策略？</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content" id="help-content">
+                    <div class="help-item">
+                        <h4>COSTAR策略介绍</h4>
+                        <p>COSTAR提问策略是一种结构化的方法，用于明确沟通需求，确保你得到最精确的回应。这个策略通过分解信息需求的关键要素，帮助你和AI助手建立更有效的沟通。</p>
+                    </div>
+                    <div class="help-item">
+                        <h4>C - CONTEXT (背景信息)</h4>
+                        <p>提供与你的问题或请求相关的背景情况，帮助AI理解你的具体情境。这可能包括项目背景、已有信息、过去的尝试或相关限制条件。</p>
+                    </div>
+                    <div class="help-item">
+                        <h4>O - OBJECTIVE (任务目标)</h4>
+                        <p>明确说明你希望通过这次交流达成的具体目标：是否需要解决问题、寻求创意、进行分析或获取某类信息。</p>
+                    </div>
+                    <div class="help-item">
+                        <h4>S - STYLE (写作风格)</h4>
+                        <p>指明你希望回答采用的写作风格：学术/专业、通俗易懂、技术性强/详细、简洁/概述性等。</p>
+                    </div>
+                    <div class="help-item">
+                        <h4>T - TONE (情感语调)</h4>
+                        <p>指定回答的情感基调或语气：正式/非正式、严肃/幽默、鼓励性/批判性、中立/热情等。</p>
+                    </div>
+                    <div class="help-item">
+                        <h4>A - AUDIENCE (受众)</h4>
+                        <p>说明最终内容的目标读者是谁：专业人士/初学者、技术/非技术人员、特定年龄群体、特定行业人士等。</p>
+                    </div>
+                    <div class="help-item">
+                        <h4>R - RESPONSE (响应格式)</h4>
+                        <p>指定你期望的回应形式和结构：列表/要点、图表/表格、分步指南、例子/案例研究、对比分析等。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 COSTAR提问策略转换器 | 让AI沟通更高效</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 主题切换功能
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = themeToggle.querySelector('i');
+            
+            // 检查系统偏好
+            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // 应用主题函数
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+            }
+            
+            // 初始设置
+            if (prefersDarkMode) {
+                applyTheme('dark');
+            }
+            
+            // 主题切换点击事件
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                if (currentTheme === 'dark') {
+                    applyTheme('light');
+                } else {
+                    applyTheme('dark');
+                }
+            });
+            
+            // 帮助折叠面板功能
+            const helpHeader = document.getElementById('help-header');
+            const helpContent = document.getElementById('help-content');
+            const helpIcon = helpHeader.querySelector('i');
+            
+            helpHeader.addEventListener('click', () => {
+                helpContent.classList.toggle('active');
+                if (helpContent.classList.contains('active')) {
+                    helpIcon.classList.remove('fa-chevron-down');
+                    helpIcon.classList.add('fa-chevron-up');
+                } else {
+                    helpIcon.classList.remove('fa-chevron-up');
+                    helpIcon.classList.add('fa-chevron-down');
+                }
+            });
+            
+            // COSTAR转换功能
+            const questionInput = document.getElementById('question-input');
+            const convertBtn = document.getElementById('convert-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const outputContent = document.getElementById('output-content');
+            const copyBtn = document.getElementById('copy-btn');
+            const copyMsg = document.getElementById('copy-msg');
+            
+            // 转换普通问题为COSTAR格式
+            function convertToCostar(question) {
+                if (!question.trim()) {
+                    return null;
+                }
+                
+                // 提取问题的关键信息
+                const keywords = extractKeywords(question);
+                const theme = identifyTheme(question);
+                const questionType = identifyQuestionType(question);
+                
+                // 生成COSTAR各部分内容
+                const context = generateContext(question, keywords, theme);
+                const objective = generateObjective(question, questionType);
+                const style = generateStyle(question, questionType);
+                const tone = generateTone(question);
+                const audience = generateAudience(question, theme);
+                const response = generateResponse(question, questionType);
+                
+                return {
+                    context,
+                    objective,
+                    style,
+                    tone,
+                    audience,
+                    response
+                };
+            }
+            
+            // 提取问题中的关键词
+            function extractKeywords(question) {
+                // 移除常见的停用词和助词
+                const stopWords = ['的', '地', '得', '了', '在', '是', '我', '你', '他', '她', '它', '们', '和', '与', '以', '及', '或', '但', '为', '帮', '请', '能否', '可否', '可以', '能够', '如何'];
+                
+                let words = question.split(/\s+|[,.;，。；]/);
+                words = words.filter(word => word.length > 1 && !stopWords.includes(word));
+                
+                // 如果过滤后关键词太少，保留一些原始内容
+                if (words.length < 3) {
+                    words = question.split(/\s+|[,.;，。；]/).filter(w => w.length > 0);
+                }
+                
+                return words.slice(0, 6); // 最多返回6个关键词
+            }
+            
+            // 识别问题的主题领域
+            function identifyTheme(question) {
+                const themes = [
+                    { name: '技术', keywords: ['编程', '代码', '软件', '开发', '数据', '算法', '技术', '网站', '应用', 'bug', 'AI', '人工智能', '机器学习'] },
+                    { name: '商业', keywords: ['市场', '营销', '销售', '商业', '创业', '企业', '管理', '项目', '策略', '客户', '产品'] },
+                    { name: '教育', keywords: ['学习', '教育', '学生', '教师', '课程', '培训', '知识', '技能', '考试', '学校', '大学'] },
+                    { name: '写作', keywords: ['写作', '文章', '报告', '论文', '内容', '创作', '故事', '小说', '文案', '书籍', '博客'] },
+                    { name: '设计', keywords: ['设计', '用户界面', 'UI', 'UX', '用户体验', '图形', '创意', '美学', '视觉', '排版', '色彩'] },
+                    { name: '健康', keywords: ['健康', '医疗', '营养', '锻炼', '健身', '疾病', '药物', '治疗', '症状', '医生', '病人'] }
+                ];
+                
+                // 检查问题中包含哪些主题关键词
+                let maxMatchCount = 0;
+                let bestTheme = '一般';
+                
+                for (const theme of themes) {
+                    let matchCount = 0;
+                    for (const keyword of theme.keywords) {
+                        if (question.includes(keyword)) {
+                            matchCount++;
+                        }
+                    }
+                    
+                    if (matchCount > maxMatchCount) {
+                        maxMatchCount = matchCount;
+                        bestTheme = theme.name;
+                    }
+                }
+                
+                return bestTheme;
+            }
+            
+            // 识别问题类型
+            function identifyQuestionType(question) {
+                if (question.includes('如何') || question.includes('怎么') || question.includes('步骤') || question.includes('流程')) {
+                    return '操作指导';
+                } else if (question.includes('比较') || question.includes('区别') || question.includes('优缺点')) {
+                    return '对比分析';
+                } else if (question.includes('列出') || question.includes('总结') || question.includes('概述')) {
+                    return '信息汇总';
+                } else if (question.includes('写') || question.includes('创作') || question.includes('生成')) {
+                    return '内容创作';
+                } else if (question.includes('解释') || question.includes('什么是') || question.includes('定义')) {
+                    return '概念解释';
+                } else if (question.includes('建议') || question.includes('推荐') || question.includes('意见')) {
+                    return '建议推荐';
+                } else if (question.includes('为什么') || question.includes('原因')) {
+                    return '原因分析';
+                } else {
+                    return '一般查询';
+                }
+            }
+            
+            // 生成上下文部分
+            function generateContext(question, keywords, theme) {
+                const contexts = {
+                    '技术': '我正在进行技术相关工作，需要解决一个问题或获取相关信息。',
+                    '商业': '我在商业/职场环境中需要处理一个问题或获取相关信息。',
+                    '教育': '我正在学习或教学过程中，需要相关的教育资源或方法。',
+                    '写作': '我正在进行写作项目，需要创意、内容或写作技巧方面的帮助。',
+                    '设计': '我正在进行设计相关工作，需要创意、灵感或技术支持。',
+                    '健康': '我对健康相关问题感兴趣，需要相关信息或建议。',
+                    '一般': '我正在寻找或需要解决以下问题的相关信息。'
+                };
+                
+                let baseContext = contexts[theme] || contexts['一般'];
+                let specificContext = `具体来说，我想了解关于"${keywords.join('、')}"的信息。`;
+                
+                return baseContext + ' ' + specificContext;
+            }
+            
+            // 生成目标部分
+            function generateObjective(question, questionType) {
+                const objectives = {
+                    '操作指导': '我希望获得清晰的步骤指导，帮助我理解并实施相关过程。',
+                    '对比分析': '我需要一个深入的对比分析，帮助我理解不同选项的优缺点。',
+                    '信息汇总': '我希望得到一个全面而简洁的信息汇总，覆盖关键要点。',
+                    '内容创作': '我需要创造高质量的内容，满足特定的要求和标准。',
+                    '概念解释': '我希望获得清晰易懂的解释，帮助我理解相关概念。',
+                    '建议推荐': '我寻求专业的建议或推荐，帮助我做出决策。',
+                    '原因分析': '我希望了解深层次的原因和解释，理解为什么会这样。',
+                    '一般查询': '我希望获取全面准确的信息，满足我的查询需求。'
+                };
+                
+                return objectives[questionType] || objectives['一般查询'];
+            }
+            
+            // 生成风格部分
+            function generateStyle(question, questionType) {
+                const styles = {
+                    '操作指导': '清晰、直接的教程风格，使用简单易懂的语言，最好有步骤编号。',
+                    '对比分析': '分析性风格，条理清晰，使用表格或并列结构来展示比较结果。',
+                    '信息汇总': '简洁明了的概述风格，使用要点和小标题组织信息。',
+                    '内容创作': '创意性和流畅的写作风格，具有吸引力和专业感。',
+                    '概念解释': '教育性的解释风格，从简单到复杂，使用类比和例子。',
+                    '建议推荐': '建议性风格，提供具体的推荐和理由。',
+                    '原因分析': '解释性风格，逻辑清晰，深入浅出。',
+                    '一般查询': '信息性风格，直接回答问题，提供相关背景。'
+                };
+                
+                // 检查问题中是否有风格提示词
+                let styleHint = '';
+                                    if (question.includes('详细') || question.includes('深入') || question.includes('全面')) {
+                        styleHint = '详细全面的解释风格，包含丰富的信息和深度分析。';
+                    } else if (question.includes('简洁') || question.includes('简短') || question.includes('摘要')) {
+                        styleHint = '简洁明了的风格，只提供核心要点和必要信息。';
+                    } else if (question.includes('通俗') || question.includes('易懂')) {
+                        styleHint = '通俗易懂的风格，避免使用专业术语，适合普通读者理解。';
+                    } else if (question.includes('专业') || question.includes('学术') || question.includes('技术')) {
+                        styleHint = '专业学术的风格，使用行业术语和严谨的表述方式。';
+                    }
+                    
+                    return styleHint || styles[questionType] || '清晰专业的表述风格，内容既准确又易于理解。';
+                }
+                
+                // 生成语调部分
+                function generateTone(question) {
+                    // 检查问题中的语调线索
+                    if (question.includes('幽默') || question.includes('有趣')) {
+                        return '轻松幽默的语调，适当加入一些有趣的元素。';
+                    } else if (question.includes('严肃') || question.includes('正式')) {
+                        return '严肃正式的语调，保持专业和客观。';
+                    } else if (question.includes('鼓励') || question.includes('积极')) {
+                        return '积极鼓励的语调，富有激励性和支持性。';
+                    } else if (question.includes('批判') || question.includes('评价')) {
+                        return '批判性思考的语调，客观分析优缺点。';
+                    } else if (question.includes('中立') || question.includes('客观')) {
+                        return '中立客观的语调，不偏不倚地呈现信息。';
+                    } else {
+                        return '友好专业的语调，既有权威性又平易近人。';
+                    }
+                }
+                
+                // 生成受众部分
+                function generateAudience(question, theme) {
+                    // 基于主题推断受众
+                    const audiences = {
+                        '技术': '对技术有基本了解的用户或开发人员',
+                        '商业': '商业专业人士或管理人员',
+                        '教育': '教育工作者、学生或学习者',
+                        '写作': '作家、内容创作者或文学爱好者',
+                        '设计': '设计师或对设计感兴趣的用户',
+                        '健康': '关注健康的普通大众或医疗相关人员',
+                        '一般': '对该主题有基本了解的普通读者'
+                    };
+                    
+                    // 检查问题中的受众线索
+                    if (question.includes('初学者') || question.includes('新手') || question.includes('入门')) {
+                        return '初学者或对该领域刚入门的人，需要基础且易于理解的内容。';
+                    } else if (question.includes('专家') || question.includes('高级') || question.includes('资深')) {
+                        return '该领域的专业人士或资深从业者，可以理解高级概念和专业术语。';
+                    } else if (question.includes('学生') || question.includes('教学')) {
+                        return '学生或正在学习该领域的人，需要结构化且具有教育意义的内容。';
+                    } else if (question.includes('团队') || question.includes('同事')) {
+                        return '工作团队或专业环境中的同事，需要实用且可应用的内容。';
+                    } else {
+                        return audiences[theme] || audiences['一般'];
+                    }
+                }
+                
+                // 生成响应格式部分
+                function generateResponse(question, questionType) {
+                    const responseFormats = {
+                        '操作指导': '步骤式指南，每步都有清晰的说明和可能的示例或图示。',
+                        '对比分析': '结构化的对比，可能使用表格或并列要点来突出异同点。',
+                        '信息汇总': '要点列表，每个要点简明扼要，覆盖主要信息。',
+                        '内容创作': '完整的文本段落，组织良好，有逻辑结构。',
+                        '概念解释': '清晰的定义，可能包含举例和实际应用场景。',
+                        '建议推荐': '有优先级的建议列表，每个建议都有理由支持。',
+                        '原因分析': '逻辑性的分析结构，可能使用因果关系说明。',
+                        '一般查询': '直接明了的回答，提供必要的上下文和解释。'
+                    };
+                    
+                    // 检查问题中的格式线索
+                    if (question.includes('列表') || question.includes('清单')) {
+                        return '使用简洁的要点列表或编号列表来组织信息。';
+                    } else if (question.includes('表格') || question.includes('对比')) {
+                        return '使用表格或结构化格式来展示信息，特别是对比数据。';
+                    } else if (question.includes('步骤') || question.includes('流程') || question.includes('方法')) {
+                        return '采用编号步骤的格式，每步都有明确的说明和指导。';
+                    } else if (question.includes('详细') || question.includes('全面') || question.includes('深入')) {
+                        return '使用完整的段落和小节，深入解释各个方面。';
+                    } else if (question.includes('简洁') || question.includes('摘要')) {
+                        return '提供简明扼要的回答，聚焦于最重要的信息。';
+                    } else if (question.includes('例子') || question.includes('案例')) {
+                        return '包含具体的例子或案例研究来说明概念。';
+                    } else {
+                        return responseFormats[questionType] || '结构清晰的回答，包含适当的段落和小标题。';
+                    }
+                }
+                
+                // 转换按钮点击事件
+                convertBtn.addEventListener('click', () => {
+                    const question = questionInput.value.trim();
+                    if (!question) {
+                        alert('请输入问题后再进行转换');
+                        return;
+                    }
+                    
+                    const costarFormat = convertToCostar(question);
+                    if (costarFormat) {
+                        updateOutput(costarFormat);
+                    }
+                });
+                
+                // 更新输出区域
+                function updateOutput(costarFormat) {
+                    const output = `
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-map-marker-alt"></i> C - CONTEXT (背景信息)
+                            </div>
+                            <div class="output-item-content">
+                                <p>${costarFormat.context}</p>
+                            </div>
+                        </div>
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-bullseye"></i> O - OBJECTIVE (任务目标)
+                            </div>
+                            <div class="output-item-content">
+                                <p>${costarFormat.objective}</p>
+                            </div>
+                        </div>
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-font"></i> S - STYLE (写作风格)
+                            </div>
+                            <div class="output-item-content">
+                                <p>${costarFormat.style}</p>
+                            </div>
+                        </div>
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-comment-dots"></i> T - TONE (情感语调)
+                            </div>
+                            <div class="output-item-content">
+                                <p>${costarFormat.tone}</p>
+                            </div>
+                        </div>
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-users"></i> A - AUDIENCE (受众)
+                            </div>
+                            <div class="output-item-content">
+                                <p>${costarFormat.audience}</p>
+                            </div>
+                        </div>
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-reply"></i> R - RESPONSE (响应格式)
+                            </div>
+                            <div class="output-item-content">
+                                <p>${costarFormat.response}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    outputContent.innerHTML = output;
+                }
+                
+                // 清除按钮点击事件
+                clearBtn.addEventListener('click', () => {
+                    questionInput.value = '';
+                    
+                    // 重置输出区域
+                    outputContent.innerHTML = `
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-map-marker-alt"></i> C - CONTEXT (背景信息)
+                            </div>
+                            <div class="output-item-content">
+                                <p>请提供与您的问题相关的背景信息，帮助我更好地理解您的具体情境。</p>
+                            </div>
+                        </div>
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-bullseye"></i> O - OBJECTIVE (任务目标)
+                            </div>
+                            <div class="output-item-content">
+                                <p>您希望通过这个问题达成什么具体目标？</p>
+                            </div>
+                        </div>
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-font"></i> S - STYLE (写作风格)
+                            </div>
+                            <div class="output-item-content">
+                                <p>您希望回答采用什么样的写作风格？(例如：学术、通俗、技术、简洁等)</p>
+                            </div>
+                        </div>
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-comment-dots"></i> T - TONE (情感语调)
+                            </div>
+                            <div class="output-item-content">
+                                <p>您期望回答的情感基调或语气是怎样的？(例如：正式、友好、严肃、幽默等)</p>
+                            </div>
+                        </div>
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-users"></i> A - AUDIENCE (受众)
+                            </div>
+                            <div class="output-item-content">
+                                <p>最终内容的目标读者是谁？(例如：专业人士、初学者、学生等)</p>
+                            </div>
+                        </div>
+                        <div class="output-item">
+                            <div class="output-item-header">
+                                <i class="fas fa-reply"></i> R - RESPONSE (响应格式)
+                            </div>
+                            <div class="output-item-content">
+                                <p>您期望的回应形式和结构是怎样的？(例如：列表、图表、分步指南等)</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                // 复制按钮功能
+                copyBtn.addEventListener('click', () => {
+                    // 创建一个临时文本区域
+                    const textarea = document.createElement('textarea');
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = 0;
+                    
+                    // 获取所有输出内容
+                    const items = outputContent.querySelectorAll('.output-item');
+                    let text = '';
+                    
+                    items.forEach(item => {
+                        const header = item.querySelector('.output-item-header').textContent.trim();
+                        const content = item.querySelector('.output-item-content').textContent.trim();
+                        text += `${header}\n${content}\n\n`;
+                    });
+                    
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    
+                    try {
+                        document.execCommand('copy');
+                        // 显示复制成功消息
+                        copyMsg.classList.add('show');
+                        setTimeout(() => {
+                            copyMsg.classList.remove('show');
+                        }, 2000);
+                    } catch (err) {
+                        console.error('复制失败:', err);
+                    }
+                    
+                    document.body.removeChild(textarea);
+                });
+            });
+        </script>
+    </script>
+</body>
+</html>
