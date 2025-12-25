@@ -1,0 +1,1497 @@
+diff --git a/index.html b/index.html
+index bf7ac477857375c26a7309ce17109f613e72e412..78479e2cfe814f7aa51630a531dfd928c48b138c 100644
+--- a/index.html
++++ b/index.html
+@@ -1,935 +1,573 @@
+ <!DOCTYPE html>
+ <html lang="zh-CN">
+ <head>
+-    <meta charset="UTF-8">
+-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+-    <title>COSTAR提问策略转换器  </title>
+-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+-    <style>
+-        :root {
+-            --bg-primary: #ffffff;
+-            --bg-secondary: #f8fafc;
+-            --bg-tertiary: #f1f5f9;
+-            --text-primary: #0f172a;
+-            --text-secondary: #475569;
+-            --text-tertiary: #94a3b8;
+-            --accent-primary: #6366f1;
+-            --accent-secondary: #4f46e5;
+-            --success-color: #22c55e;
+-            --border-color: #e2e8f0;
+-            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+-            --card-hover-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+-        }
+-
+-        html[data-theme="dark"] {
+-            --bg-primary: #0f172a;
+-            --bg-secondary: #1e293b;
+-            --bg-tertiary: #334155;
+-            --text-primary: #f8fafc;
+-            --text-secondary: #e2e8f0;
+-            --text-tertiary: #cbd5e0;
+-            --accent-primary: #818cf8;
+-            --accent-secondary: #6366f1;
+-            --success-color: #4ade80;
+-            --border-color: #334155;
+-            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.2);
+-            --card-hover-shadow: 0 10px 15px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.25);
+-        }
+-
+-        * {
+-            margin: 0;
+-            padding: 0;
+-            box-sizing: border-box;
+-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+-        }
+-
+-        body {
+-            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+-            background-color: var(--bg-primary);
+-            color: var(--text-primary);
+-            line-height: 1.6;
+-            -webkit-text-size-adjust: 100%;
+-            text-size-adjust: 100%;
+-            overflow-x: hidden;
+-        }
+-
+-        .container {
+-            max-width: 1000px;
+-            margin: 0 auto;
+-            padding: 1.5rem;
+-        }
+-
+-        header {
+-            display: flex;
+-            justify-content: space-between;
+-            align-items: center;
+-            padding: 1rem 0;
+-            margin-bottom: 2rem;
+-            border-bottom: 1px solid var(--border-color);
+-        }
+-
+-        .logo {
+-            display: flex;
+-            align-items: center;
+-            gap: 0.75rem;
+-            font-size: 1.5rem;
+-            font-weight: 700;
+-            color: var(--accent-primary);
+-        }
+-
+-        .logo i {
+-            font-size: 1.75rem;
+-        }
+-
+-        .theme-toggle {
+-            background: none;
+-            border: none;
+-            color: var(--text-secondary);
+-            cursor: pointer;
+-            font-size: 1.25rem;
+-            padding: 0.5rem;
+-            border-radius: 0.375rem;
+-        }
+-
+-        .theme-toggle:hover {
+-            color: var(--accent-primary);
+-            background-color: var(--bg-secondary);
+-        }
+-
+-        .main-content {
+-            display: grid;
+-            grid-template-columns: 1fr 1fr;
+-            gap: 2rem;
+-            margin-bottom: 2rem;
+-        }
+-
+-        .card {
+-            background-color: var(--bg-primary);
+-            border-radius: 0.75rem;
+-            border: 1px solid var(--border-color);
+-            padding: 1.5rem;
+-            box-shadow: var(--card-shadow);
+-        }
+-
+-        .card-title {
+-            display: flex;
+-            align-items: center;
+-            gap: 0.5rem;
+-            font-size: 1.25rem;
+-            font-weight: 600;
+-            margin-bottom: 1rem;
+-            color: var(--accent-primary);
+-        }
+-
+-        .input-group {
+-            margin-bottom: 1.5rem;
+-        }
+-
+-        .input-group label {
+-            display: block;
+-            margin-bottom: 0.5rem;
+-            font-weight: 500;
+-            color: var(--text-secondary);
+-        }
+-
+-        textarea {
+-            width: 100%;
+-            padding: 0.75rem;
+-            border: 1px solid var(--border-color);
+-            border-radius: 0.375rem;
+-            background-color: var(--bg-primary);
+-            color: var(--text-primary);
+-            resize: vertical;
+-            min-height: 150px;
+-            font-family: inherit;
+-            font-size: 0.95rem;
+-            line-height: 1.5;
+-        }
+-
+-        textarea:focus {
+-            outline: none;
+-            border-color: var(--accent-primary);
+-        }
+-
+-        .btn {
+-            display: inline-flex;
+-            align-items: center;
+-            justify-content: center;
+-            gap: 0.5rem;
+-            background-color: var(--accent-primary);
+-            color: white;
+-            padding: 0.75rem 1.5rem;
+-            border-radius: 0.375rem;
+-            font-weight: 600;
+-            border: none;
+-            cursor: pointer;
+-            transition: all 0.2s ease;
+-        }
+-
+-        .btn:hover {
+-            background-color: var(--accent-secondary);
+-            transform: translateY(-2px);
+-        }
+-
+-        .btn:active {
+-            transform: translateY(0);
+-        }
+-
+-        .btn.secondary {
+-            background-color: var(--bg-tertiary);
+-            color: var(--text-secondary);
+-        }
+-
+-        .btn.secondary:hover {
+-            background-color: var(--border-color);
+-        }
+-
+-        .button-group {
+-            display: flex;
+-            gap: 1rem;
+-            margin-top: 1rem;
+-        }
+-
+-        .output-section {
+-            display: flex;
+-            flex-direction: column;
+-        }
+-
+-        .output-format {
+-            flex-grow: 1;
+-            display: flex;
+-            flex-direction: column;
+-        }
+-
+-        .output-area {
+-            flex-grow: 1;
+-            margin-bottom: 1rem;
+-            background-color: var(--bg-secondary);
+-            border: 1px solid var(--border-color);
+-            border-radius: 0.375rem;
+-            padding: 1rem;
+-            overflow-y: auto;
+-        }
+-
+-        .output-item {
+-            margin-bottom: 1.25rem;
+-        }
+-
+-        .output-item-header {
+-            display: flex;
+-            align-items: center;
+-            gap: 0.5rem;
+-            font-weight: 700;
+-            color: var(--accent-primary);
+-            margin-bottom: 0.5rem;
+-        }
+-
+-        .output-item-content {
+-            padding-left: 1.75rem;
+-            color: var(--text-primary);
+-        }
+-
+-        .copy-btn {
+-            display: inline-flex;
+-            align-items: center;
+-            gap: 0.5rem;
+-            color: var(--text-secondary);
+-            background: none;
+-            border: none;
+-            font-size: 0.95rem;
+-            cursor: pointer;
+-            padding: 0.5rem;
+-            border-radius: 0.25rem;
+-        }
+-
+-        .copy-btn:hover {
+-            color: var(--accent-primary);
+-            background-color: var(--bg-secondary);
+-        }
+-
+-        .copy-msg {
+-            display: inline-block;
+-            margin-left: 1rem;
+-            color: var(--success-color);
+-            font-size: 0.9rem;
+-            opacity: 0;
+-            transition: opacity 0.3s ease;
+-        }
+-
+-        .copy-msg.show {
+-            opacity: 1;
+-        }
+-
+-        .accordion {
+-            margin-top: 1rem;
+-            border: 1px solid var(--border-color);
+-            border-radius: 0.375rem;
+-            overflow: hidden;
+-        }
+-
+-        .accordion-header {
+-            display: flex;
+-            justify-content: space-between;
+-            align-items: center;
+-            padding: 1rem;
+-            background-color: var(--bg-secondary);
+-            cursor: pointer;
+-            font-weight: 600;
+-        }
+-
+-        .accordion-content {
+-            padding: 0;
+-            max-height: 0;
+-            overflow: hidden;
+-            transition: max-height 0.3s ease, padding 0.3s ease;
+-        }
+-
+-        .accordion-content.active {
+-            padding: 1rem;
+-            max-height: 500px;
+-        }
+-
+-        .help-section {
+-            margin-top: 2rem;
+-        }
+-
+-        .help-item {
+-            margin-bottom: 1rem;
+-        }
+-
+-        .help-item h4 {
+-            color: var(--accent-primary);
+-            margin-bottom: 0.5rem;
+-        }
++  <meta charset="UTF-8">
++  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
++  <title>学生成长录模板工坊</title>
++  <link rel="preconnect" href="https://fonts.googleapis.com">
++  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
++  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
++  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
++  <style>
++    :root {
++      --bg: #0b1220;
++      --panel: rgba(255, 255, 255, 0.06);
++      --text: #e2e8f0;
++      --muted: #94a3b8;
++      --border: rgba(255, 255, 255, 0.08);
++      --shadow: 0 15px 60px rgba(15, 23, 42, 0.35);
++      --radius: 16px;
++      --card-radius: 20px;
++    }
++
++    * { box-sizing: border-box; }
++
++    body {
++      margin: 0;
++      font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
++      background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.18), transparent 25%),
++                  radial-gradient(circle at 80% 0%, rgba(45, 212, 191, 0.18), transparent 25%),
++                  var(--bg);
++      color: var(--text);
++      min-height: 100vh;
++      padding: 32px 18px 48px;
++    }
++
++    .app-shell { max-width: 1200px; margin: 0 auto; }
++
++    header {
++      display: flex;
++      align-items: center;
++      justify-content: space-between;
++      margin-bottom: 24px;
++      gap: 16px;
++    }
++
++    .title-block {
++      display: flex;
++      align-items: center;
++      gap: 14px;
++    }
++
++    .logo {
++      width: 48px;
++      height: 48px;
++      border-radius: 14px;
++      display: grid;
++      place-items: center;
++      background: linear-gradient(135deg, #6366f1, #22d3ee);
++      color: #fff;
++      box-shadow: var(--shadow);
++    }
++
++    h1 { margin: 0; font-size: 24px; letter-spacing: 0.4px; }
++    .subtitle { color: var(--muted); margin-top: 4px; font-size: 14px; }
++
++    .pill {
++      display: inline-flex;
++      align-items: center;
++      gap: 8px;
++      padding: 10px 14px;
++      background: rgba(255, 255, 255, 0.08);
++      border: 1px solid var(--border);
++      border-radius: 999px;
++      color: var(--muted);
++      font-size: 13px;
++    }
++
++    .grid {
++      display: grid;
++      grid-template-columns: 1fr 1.1fr;
++      gap: 18px;
++    }
++
++    .panel {
++      background: var(--panel);
++      border: 1px solid var(--border);
++      border-radius: var(--card-radius);
++      padding: 18px;
++      box-shadow: var(--shadow);
++      backdrop-filter: blur(10px);
++    }
++
++    .panel h2 {
++      margin: 0 0 12px;
++      font-size: 18px;
++      display: flex;
++      align-items: center;
++      gap: 10px;
++    }
++
++    .section-label {
++      margin: 16px 0 8px;
++      font-weight: 600;
++      color: #cbd5e1;
++      display: flex;
++      align-items: center;
++      gap: 8px;
++      font-size: 14px;
++    }
++
++    input[type="file"], textarea, select {
++      width: 100%;
++      padding: 12px 14px;
++      border-radius: 12px;
++      border: 1px solid var(--border);
++      background: rgba(255, 255, 255, 0.04);
++      color: var(--text);
++      font-size: 14px;
++      outline: none;
++    }
++
++    textarea { min-height: 120px; resize: vertical; }
++
++    .hint { color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.5; }
++
++    .btn {
++      display: inline-flex;
++      align-items: center;
++      gap: 8px;
++      border: none;
++      background: linear-gradient(135deg, #6366f1, #22d3ee);
++      color: #fff;
++      padding: 12px 16px;
++      border-radius: 12px;
++      font-weight: 700;
++      cursor: pointer;
++      box-shadow: var(--shadow);
++      transition: transform 0.15s ease, box-shadow 0.2s ease;
++    }
++
++    .btn:hover { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(99, 102, 241, 0.35); }
++    .btn.secondary { background: rgba(255, 255, 255, 0.07); color: var(--text); }
++
++    .button-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
++
++    .badge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
++    .badge { padding: 10px 12px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); border-radius: 12px; font-size: 13px; color: #e2e8f0; }
++    .badge strong { display: block; font-size: 13px; margin-bottom: 4px; color: #c7d2fe; }
++
++    .palette-row { display: flex; gap: 10px; flex-wrap: wrap; }
++    .swatch {
++      width: 58px; height: 58px; border-radius: 14px; border: 1px solid var(--border);
++      position: relative; cursor: pointer; overflow: hidden; box-shadow: var(--shadow);
++    }
++    .swatch span { position: absolute; inset: 0; }
++    .swatch.active::after {
++      content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
++      position: absolute; right: 8px; top: 6px; color: #fff;
++      text-shadow: 0 4px 14px rgba(0,0,0,0.35);
++    }
++
++    .preview-wrapper { display: flex; flex-direction: column; gap: 14px; }
++    .student-list {
++      display: flex; gap: 8px; flex-wrap: wrap;
++      padding: 10px; border: 1px dashed var(--border); border-radius: 12px;
++      background: rgba(255, 255, 255, 0.05);
++    }
++    .student-chip { padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); cursor: pointer; color: #e2e8f0; font-size: 13px; }
++    .student-chip.active { background: linear-gradient(135deg, #6366f1, #22d3ee); border-color: transparent; color: #fff; }
++
++    .preview-card {
++      border-radius: 22px;
++      padding: 22px;
++      color: #0f172a;
++      background: #f8fafc;
++      border: 1px solid rgba(255, 255, 255, 0.32);
++      position: relative;
++      overflow: hidden;
++      box-shadow: 0 15px 40px rgba(15, 23, 42, 0.28);
++    }
++
++    .preview-card::before {
++      content: '';
++      position: absolute;
++      inset: 0;
++      opacity: 0.15;
++      background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.65), transparent 35%),
++                  radial-gradient(circle at 85% 15%, rgba(255,255,255,0.65), transparent 30%);
++    }
++
++    .preview-head {
++      display: flex;
++      justify-content: space-between;
++      align-items: flex-start;
++      gap: 12px;
++      position: relative;
++      z-index: 1;
++    }
++
++    .identity h3 { margin: 0; font-size: 20px; }
++    .identity p { margin: 6px 0 0; color: #0f172a; opacity: 0.75; font-size: 14px; }
++
++    .tag {
++      padding: 10px 14px;
++      border-radius: 12px;
++      background: rgba(255, 255, 255, 0.6);
++      color: #0f172a;
++      font-weight: 700;
++      display: inline-flex;
++      align-items: center;
++      gap: 8px;
++      border: 1px solid rgba(15, 23, 42, 0.05);
++    }
++
++    .metric-row { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
++    .metric { padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.72); border: 1px solid rgba(15, 23, 42, 0.08); }
++    .metric .label { font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
++    .progress { height: 8px; background: rgba(15, 23, 42, 0.08); border-radius: 8px; overflow: hidden; }
++    .progress span { display: block; height: 100%; border-radius: 8px; }
++    .metric .value { font-size: 13px; margin-top: 6px; color: #0f172a; opacity: 0.8; }
++
++    .note-card { margin-top: 16px; padding: 14px; border-radius: 14px; background: rgba(255, 255, 255, 0.8); border: 1px dashed rgba(15,23,42,0.14); position: relative; }
++    .note-card h4 { margin: 0 0 8px; }
++    .note-card p { margin: 0; line-height: 1.6; color: #0f172a; opacity: 0.9; }
++
++    .palette-ocean { background: linear-gradient(135deg, #e0f2fe, #ccfbf1); }
++    .palette-sunset { background: linear-gradient(135deg, #fff7ed, #ffe4e6); }
++    .palette-forest { background: linear-gradient(135deg, #ecfdf3, #d1fae5); }
++    .palette-aurora { background: linear-gradient(135deg, #eef2ff, #e0e7ff); }
++
++    .footnote { color: var(--muted); font-size: 13px; margin-top: 8px; line-height: 1.5; }
++
++    .status { display: flex; align-items: center; gap: 8px; color: #a5b4fc; font-weight: 600; font-size: 13px; }
++
++    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
++  </style>
++</head>
++<body>
++  <div class="app-shell">
++    <header>
++      <div class="title-block">
++        <div class="logo"><i class="fa-solid fa-sparkles"></i></div>
++        <div>
++          <h1>学生成长录模板工坊</h1>
++          <div class="subtitle">读取 Excel 指标，一键生成统一美化的每日成长记录图片，可随时修改文字与样式。</div>
++        </div>
++      </div>
++      <div class="pill"><i class="fa-solid fa-image"></i> 图片级版式 · Excel 批量 · 可编辑占位符</div>
++    </header>
++
++    <div class="grid">
++      <div class="panel">
++        <h2><i class="fa-solid fa-table"></i> 数据与文案</h2>
++        <label class="section-label"><i class="fa-solid fa-file-arrow-up"></i> 导入 Excel / CSV</label>
++        <input id="excel-input" type="file" accept=".xlsx,.xls,.csv" />
++        <div class="hint">第一行为表头，建议包含“姓名/班级/日期”以及多个评价指标；支持 .xlsx/.xls/.csv。</div>
++        <div class="button-row">
++          <button class="btn secondary" id="use-sample"><i class="fa-solid fa-flask"></i> 使用示例数据</button>
++          <div class="status" id="status">等待数据导入...</div>
++        </div>
+ 
+-        footer {
+-            text-align: center;
+-            padding: 2rem 0;
+-            margin-top: 2rem;
+-            border-top: 1px solid var(--border-color);
+-            color: var(--text-tertiary);
+-            font-size: 0.9rem;
+-        }
++        <label class="section-label"><i class="fa-solid fa-pen-to-square"></i> 文案模板</label>
++        <textarea id="comment-template">{姓名} 在 {班级} 今日表现亮点突出：课堂表现 {课堂表现}，作业完成 {作业完成度}，综合评价 {综合评价}。保持好奇、敢于发问的习惯，让我们共同见证 {姓名} 的持续成长！</textarea>
++        <div class="hint">支持占位符：{姓名}、{班级}、{日期} 以及任意指标列名（如 {课堂表现}）。</div>
+ 
+-        /* 移动端优化 */
+-        @media (max-width: 768px) {
+-            .main-content {
+-                grid-template-columns: 1fr;
+-            }
++        <label class="section-label"><i class="fa-solid fa-list-check"></i> 展示指标</label>
++        <div id="metric-options" class="badge-grid"></div>
+ 
+-            .button-group {
+-                flex-direction: column;
+-            }
++        <label class="section-label"><i class="fa-solid fa-palette"></i> 版式配色</label>
++        <div class="palette-row" id="palette-row"></div>
+ 
+-            .btn {
+-                width: 100%;
+-            }
+-        }
+-    </style>
+-</head>
+-<body>
+-    <div class="container">
+-        <header>
+-            <div class="logo">
+-                <i class="fas fa-comments"></i>
+-                <span>COSTAR提问策略转换器 </span>
+-               
+-            </div>
+-            <button id="theme-toggle" class="theme-toggle" aria-label="切换主题">
+-                <i class="fas fa-moon"></i>
+-            </button>
+-        </header>
+-
+-        <div class="main-content">
+-            <div class="card">
+-                <div class="card-title">
+-                    <i class="fas fa-question-circle"></i>
+-                    <span>输入问题</span>
+-                </div>
+-                <div class="input-group">
+-                    <label for="question-input">请输入你的问题或请求:</label>
+-                    <textarea id="question-input" placeholder="例如: 帮我写一篇关于人工智能的文章"></textarea>
+-                </div>
+-                <div class="button-group">
+-                    <button id="convert-btn" class="btn">
+-                        <i class="fas fa-magic"></i> 转换为COSTAR格式
+-                    </button>
+-                    <button id="clear-btn" class="btn secondary">
+-                        <i class="fas fa-eraser"></i> 清除
+-                    </button>
+-                </div>
++        <div class="section-label"><i class="fa-solid fa-download"></i> 导出图片</div>
++        <div class="button-row">
++          <button class="btn" id="download-current"><i class="fa-solid fa-image"></i> 当前学生</button>
++          <button class="btn secondary" id="download-all"><i class="fa-solid fa-layer-group"></i> 批量生成全部</button>
++        </div>
++        <div class="hint">生成时会依次渲染学生数据并保存为 PNG；确保浏览器允许下载多个文件。</div>
++      </div>
++
++      <div class="panel">
++        <h2><i class="fa-solid fa-wand-magic-sparkles"></i> 预览与选择</h2>
++        <div class="preview-wrapper">
++          <div class="student-list" id="student-list"></div>
++          <div id="preview-card" class="preview-card palette-ocean">
++            <div class="preview-head">
++              <div class="identity">
++                <h3 id="student-name">学生姓名</h3>
++                <p id="student-class">班级</p>
++              </div>
++              <div class="tag" id="date-tag"><i class="fa-regular fa-calendar"></i> <span>日期</span></div>
+             </div>
+ 
+-            <div class="card output-section">
+-                <div class="card-title">
+-                    <i class="fas fa-file-alt"></i>
+-                    <span>COSTAR提问格式</span>
+-                </div>
+-                <div class="output-format">
+-                    <div class="output-area">
+-                        <div id="output-content">
+-                            <div class="output-item">
+-                                <div class="output-item-header">
+-                                    <i class="fas fa-map-marker-alt"></i> C - CONTEXT (背景信息)
+-                                </div>
+-                                <div class="output-item-content">
+-                                    <p>请提供与您的问题相关的背景信息，帮助我更好地理解您的具体情境。</p>
+-                                </div>
+-                            </div>
+-                            <div class="output-item">
+-                                <div class="output-item-header">
+-                                    <i class="fas fa-bullseye"></i> O - OBJECTIVE (任务目标)
+-                                </div>
+-                                <div class="output-item-content">
+-                                    <p>您希望通过这个问题达成什么具体目标？</p>
+-                                </div>
+-                            </div>
+-                            <div class="output-item">
+-                                <div class="output-item-header">
+-                                    <i class="fas fa-font"></i> S - STYLE (写作风格)
+-                                </div>
+-                                <div class="output-item-content">
+-                                    <p>您希望回答采用什么样的写作风格？(例如：学术、通俗、技术、简洁等)</p>
+-                                </div>
+-                            </div>
+-                            <div class="output-item">
+-                                <div class="output-item-header">
+-                                    <i class="fas fa-comment-dots"></i> T - TONE (情感语调)
+-                                </div>
+-                                <div class="output-item-content">
+-                                    <p>您期望回答的情感基调或语气是怎样的？(例如：正式、友好、严肃、幽默等)</p>
+-                                </div>
+-                            </div>
+-                            <div class="output-item">
+-                                <div class="output-item-header">
+-                                    <i class="fas fa-users"></i> A - AUDIENCE (受众)
+-                                </div>
+-                                <div class="output-item-content">
+-                                    <p>最终内容的目标读者是谁？(例如：专业人士、初学者、学生等)</p>
+-                                </div>
+-                            </div>
+-                            <div class="output-item">
+-                                <div class="output-item-header">
+-                                    <i class="fas fa-reply"></i> R - RESPONSE (响应格式)
+-                                </div>
+-                                <div class="output-item-content">
+-                                    <p>您期望的回应形式和结构是怎样的？(例如：列表、图表、分步指南等)</p>
+-                                </div>
+-                            </div>
+-                        </div>
+-                    </div>
+-                    <button id="copy-btn" class="copy-btn">
+-                        <i class="fas fa-copy"></i> 复制内容
+-                        <span id="copy-msg" class="copy-msg">已复制到剪贴板!</span>
+-                    </button>
+-                </div>
+-            </div>
+-        </div>
++            <div class="metric-row" id="metric-row"></div>
+ 
+-        <div class="help-section">
+-            <div class="accordion">
+-                <div class="accordion-header" id="help-header">
+-                    <span>什么是COSTAR提问策略？</span>
+-                    <i class="fas fa-chevron-down"></i>
+-                </div>
+-                <div class="accordion-content" id="help-content">
+-                    <div class="help-item">
+-                        <h4>COSTAR策略介绍</h4>
+-                        <p>COSTAR提问策略是一种结构化的方法，用于明确沟通需求，确保你得到最精确的回应。这个策略通过分解信息需求的关键要素，帮助你和AI助手建立更有效的沟通。</p>
+-                    </div>
+-                    <div class="help-item">
+-                        <h4>C - CONTEXT (背景信息)</h4>
+-                        <p>提供与你的问题或请求相关的背景情况，帮助AI理解你的具体情境。这可能包括项目背景、已有信息、过去的尝试或相关限制条件。</p>
+-                    </div>
+-                    <div class="help-item">
+-                        <h4>O - OBJECTIVE (任务目标)</h4>
+-                        <p>明确说明你希望通过这次交流达成的具体目标：是否需要解决问题、寻求创意、进行分析或获取某类信息。</p>
+-                    </div>
+-                    <div class="help-item">
+-                        <h4>S - STYLE (写作风格)</h4>
+-                        <p>指明你希望回答采用的写作风格：学术/专业、通俗易懂、技术性强/详细、简洁/概述性等。</p>
+-                    </div>
+-                    <div class="help-item">
+-                        <h4>T - TONE (情感语调)</h4>
+-                        <p>指定回答的情感基调或语气：正式/非正式、严肃/幽默、鼓励性/批判性、中立/热情等。</p>
+-                    </div>
+-                    <div class="help-item">
+-                        <h4>A - AUDIENCE (受众)</h4>
+-                        <p>说明最终内容的目标读者是谁：专业人士/初学者、技术/非技术人员、特定年龄群体、特定行业人士等。</p>
+-                    </div>
+-                    <div class="help-item">
+-                        <h4>R - RESPONSE (响应格式)</h4>
+-                        <p>指定你期望的回应形式和结构：列表/要点、图表/表格、分步指南、例子/案例研究、对比分析等。</p>
+-                    </div>
+-                </div>
++            <div class="note-card">
++              <h4><i class="fa-solid fa-book-open"></i> 日常学习成长录</h4>
++              <p id="comment-text">导入数据后，这里会自动合成老师寄语与指标亮点。</p>
+             </div>
++          </div>
++          <div class="footnote">小技巧：可在文案模板中加入如“{阅读力}”“{探究精神}”等指标列名，生成后仍可手工微调文字。</div>
+         </div>
+-
+-        <footer>
+-            <p>© 2025 COSTAR提问策略转换器 | 让AI沟通更高效</p>
+-        </footer>
++      </div>
+     </div>
+ 
+-    <script>
+-        document.addEventListener('DOMContentLoaded', function() {
+-            // 主题切换功能
+-            const themeToggle = document.getElementById('theme-toggle');
+-            const themeIcon = themeToggle.querySelector('i');
+-            
+-            // 检查系统偏好
+-            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+-            
+-            // 应用主题函数
+-            function applyTheme(theme) {
+-                if (theme === 'dark') {
+-                    document.documentElement.setAttribute('data-theme', 'dark');
+-                    themeIcon.classList.remove('fa-moon');
+-                    themeIcon.classList.add('fa-sun');
+-                } else {
+-                    document.documentElement.removeAttribute('data-theme');
+-                    themeIcon.classList.remove('fa-sun');
+-                    themeIcon.classList.add('fa-moon');
+-                }
+-            }
+-            
+-            // 初始设置
+-            if (prefersDarkMode) {
+-                applyTheme('dark');
+-            }
+-            
+-            // 主题切换点击事件
+-            themeToggle.addEventListener('click', () => {
+-                const currentTheme = document.documentElement.getAttribute('data-theme');
+-                if (currentTheme === 'dark') {
+-                    applyTheme('light');
+-                } else {
+-                    applyTheme('dark');
+-                }
+-            });
+-            
+-            // 帮助折叠面板功能
+-            const helpHeader = document.getElementById('help-header');
+-            const helpContent = document.getElementById('help-content');
+-            const helpIcon = helpHeader.querySelector('i');
+-            
+-            helpHeader.addEventListener('click', () => {
+-                helpContent.classList.toggle('active');
+-                if (helpContent.classList.contains('active')) {
+-                    helpIcon.classList.remove('fa-chevron-down');
+-                    helpIcon.classList.add('fa-chevron-up');
+-                } else {
+-                    helpIcon.classList.remove('fa-chevron-up');
+-                    helpIcon.classList.add('fa-chevron-down');
+-                }
+-            });
+-            
+-            // COSTAR转换功能
+-            const questionInput = document.getElementById('question-input');
+-            const convertBtn = document.getElementById('convert-btn');
+-            const clearBtn = document.getElementById('clear-btn');
+-            const outputContent = document.getElementById('output-content');
+-            const copyBtn = document.getElementById('copy-btn');
+-            const copyMsg = document.getElementById('copy-msg');
+-            
+-            // 转换普通问题为COSTAR格式
+-            function convertToCostar(question) {
+-                if (!question.trim()) {
+-                    return null;
+-                }
+-                
+-                // 提取问题的关键信息
+-                const keywords = extractKeywords(question);
+-                const theme = identifyTheme(question);
+-                const questionType = identifyQuestionType(question);
+-                
+-                // 生成COSTAR各部分内容
+-                const context = generateContext(question, keywords, theme);
+-                const objective = generateObjective(question, questionType);
+-                const style = generateStyle(question, questionType);
+-                const tone = generateTone(question);
+-                const audience = generateAudience(question, theme);
+-                const response = generateResponse(question, questionType);
+-                
+-                return {
+-                    context,
+-                    objective,
+-                    style,
+-                    tone,
+-                    audience,
+-                    response
+-                };
+-            }
+-            
+-            // 提取问题中的关键词
+-            function extractKeywords(question) {
+-                // 移除常见的停用词和助词
+-                const stopWords = ['的', '地', '得', '了', '在', '是', '我', '你', '他', '她', '它', '们', '和', '与', '以', '及', '或', '但', '为', '帮', '请', '能否', '可否', '可以', '能够', '如何'];
+-                
+-                let words = question.split(/\s+|[,.;，。；]/);
+-                words = words.filter(word => word.length > 1 && !stopWords.includes(word));
+-                
+-                // 如果过滤后关键词太少，保留一些原始内容
+-                if (words.length < 3) {
+-                    words = question.split(/\s+|[,.;，。；]/).filter(w => w.length > 0);
+-                }
+-                
+-                return words.slice(0, 6); // 最多返回6个关键词
+-            }
+-            
+-            // 识别问题的主题领域
+-            function identifyTheme(question) {
+-                const themes = [
+-                    { name: '技术', keywords: ['编程', '代码', '软件', '开发', '数据', '算法', '技术', '网站', '应用', 'bug', 'AI', '人工智能', '机器学习'] },
+-                    { name: '商业', keywords: ['市场', '营销', '销售', '商业', '创业', '企业', '管理', '项目', '策略', '客户', '产品'] },
+-                    { name: '教育', keywords: ['学习', '教育', '学生', '教师', '课程', '培训', '知识', '技能', '考试', '学校', '大学'] },
+-                    { name: '写作', keywords: ['写作', '文章', '报告', '论文', '内容', '创作', '故事', '小说', '文案', '书籍', '博客'] },
+-                    { name: '设计', keywords: ['设计', '用户界面', 'UI', 'UX', '用户体验', '图形', '创意', '美学', '视觉', '排版', '色彩'] },
+-                    { name: '健康', keywords: ['健康', '医疗', '营养', '锻炼', '健身', '疾病', '药物', '治疗', '症状', '医生', '病人'] }
+-                ];
+-                
+-                // 检查问题中包含哪些主题关键词
+-                let maxMatchCount = 0;
+-                let bestTheme = '一般';
+-                
+-                for (const theme of themes) {
+-                    let matchCount = 0;
+-                    for (const keyword of theme.keywords) {
+-                        if (question.includes(keyword)) {
+-                            matchCount++;
+-                        }
+-                    }
+-                    
+-                    if (matchCount > maxMatchCount) {
+-                        maxMatchCount = matchCount;
+-                        bestTheme = theme.name;
+-                    }
+-                }
+-                
+-                return bestTheme;
+-            }
+-            
+-            // 识别问题类型
+-            function identifyQuestionType(question) {
+-                if (question.includes('如何') || question.includes('怎么') || question.includes('步骤') || question.includes('流程')) {
+-                    return '操作指导';
+-                } else if (question.includes('比较') || question.includes('区别') || question.includes('优缺点')) {
+-                    return '对比分析';
+-                } else if (question.includes('列出') || question.includes('总结') || question.includes('概述')) {
+-                    return '信息汇总';
+-                } else if (question.includes('写') || question.includes('创作') || question.includes('生成')) {
+-                    return '内容创作';
+-                } else if (question.includes('解释') || question.includes('什么是') || question.includes('定义')) {
+-                    return '概念解释';
+-                } else if (question.includes('建议') || question.includes('推荐') || question.includes('意见')) {
+-                    return '建议推荐';
+-                } else if (question.includes('为什么') || question.includes('原因')) {
+-                    return '原因分析';
+-                } else {
+-                    return '一般查询';
+-                }
+-            }
+-            
+-            // 生成上下文部分
+-            function generateContext(question, keywords, theme) {
+-                const contexts = {
+-                    '技术': '我正在进行技术相关工作，需要解决一个问题或获取相关信息。',
+-                    '商业': '我在商业/职场环境中需要处理一个问题或获取相关信息。',
+-                    '教育': '我正在学习或教学过程中，需要相关的教育资源或方法。',
+-                    '写作': '我正在进行写作项目，需要创意、内容或写作技巧方面的帮助。',
+-                    '设计': '我正在进行设计相关工作，需要创意、灵感或技术支持。',
+-                    '健康': '我对健康相关问题感兴趣，需要相关信息或建议。',
+-                    '一般': '我正在寻找或需要解决以下问题的相关信息。'
+-                };
+-                
+-                let baseContext = contexts[theme] || contexts['一般'];
+-                let specificContext = `具体来说，我想了解关于"${keywords.join('、')}"的信息。`;
+-                
+-                return baseContext + ' ' + specificContext;
+-            }
+-            
+-            // 生成目标部分
+-            function generateObjective(question, questionType) {
+-                const objectives = {
+-                    '操作指导': '我希望获得清晰的步骤指导，帮助我理解并实施相关过程。',
+-                    '对比分析': '我需要一个深入的对比分析，帮助我理解不同选项的优缺点。',
+-                    '信息汇总': '我希望得到一个全面而简洁的信息汇总，覆盖关键要点。',
+-                    '内容创作': '我需要创造高质量的内容，满足特定的要求和标准。',
+-                    '概念解释': '我希望获得清晰易懂的解释，帮助我理解相关概念。',
+-                    '建议推荐': '我寻求专业的建议或推荐，帮助我做出决策。',
+-                    '原因分析': '我希望了解深层次的原因和解释，理解为什么会这样。',
+-                    '一般查询': '我希望获取全面准确的信息，满足我的查询需求。'
+-                };
+-                
+-                return objectives[questionType] || objectives['一般查询'];
+-            }
+-            
+-            // 生成风格部分
+-            function generateStyle(question, questionType) {
+-                const styles = {
+-                    '操作指导': '清晰、直接的教程风格，使用简单易懂的语言，最好有步骤编号。',
+-                    '对比分析': '分析性风格，条理清晰，使用表格或并列结构来展示比较结果。',
+-                    '信息汇总': '简洁明了的概述风格，使用要点和小标题组织信息。',
+-                    '内容创作': '创意性和流畅的写作风格，具有吸引力和专业感。',
+-                    '概念解释': '教育性的解释风格，从简单到复杂，使用类比和例子。',
+-                    '建议推荐': '建议性风格，提供具体的推荐和理由。',
+-                    '原因分析': '解释性风格，逻辑清晰，深入浅出。',
+-                    '一般查询': '信息性风格，直接回答问题，提供相关背景。'
+-                };
+-                
+-                // 检查问题中是否有风格提示词
+-                let styleHint = '';
+-                                    if (question.includes('详细') || question.includes('深入') || question.includes('全面')) {
+-                        styleHint = '详细全面的解释风格，包含丰富的信息和深度分析。';
+-                    } else if (question.includes('简洁') || question.includes('简短') || question.includes('摘要')) {
+-                        styleHint = '简洁明了的风格，只提供核心要点和必要信息。';
+-                    } else if (question.includes('通俗') || question.includes('易懂')) {
+-                        styleHint = '通俗易懂的风格，避免使用专业术语，适合普通读者理解。';
+-                    } else if (question.includes('专业') || question.includes('学术') || question.includes('技术')) {
+-                        styleHint = '专业学术的风格，使用行业术语和严谨的表述方式。';
+-                    }
+-                    
+-                    return styleHint || styles[questionType] || '清晰专业的表述风格，内容既准确又易于理解。';
+-                }
+-                
+-                // 生成语调部分
+-                function generateTone(question) {
+-                    // 检查问题中的语调线索
+-                    if (question.includes('幽默') || question.includes('有趣')) {
+-                        return '轻松幽默的语调，适当加入一些有趣的元素。';
+-                    } else if (question.includes('严肃') || question.includes('正式')) {
+-                        return '严肃正式的语调，保持专业和客观。';
+-                    } else if (question.includes('鼓励') || question.includes('积极')) {
+-                        return '积极鼓励的语调，富有激励性和支持性。';
+-                    } else if (question.includes('批判') || question.includes('评价')) {
+-                        return '批判性思考的语调，客观分析优缺点。';
+-                    } else if (question.includes('中立') || question.includes('客观')) {
+-                        return '中立客观的语调，不偏不倚地呈现信息。';
+-                    } else {
+-                        return '友好专业的语调，既有权威性又平易近人。';
+-                    }
+-                }
+-                
+-                // 生成受众部分
+-                function generateAudience(question, theme) {
+-                    // 基于主题推断受众
+-                    const audiences = {
+-                        '技术': '对技术有基本了解的用户或开发人员',
+-                        '商业': '商业专业人士或管理人员',
+-                        '教育': '教育工作者、学生或学习者',
+-                        '写作': '作家、内容创作者或文学爱好者',
+-                        '设计': '设计师或对设计感兴趣的用户',
+-                        '健康': '关注健康的普通大众或医疗相关人员',
+-                        '一般': '对该主题有基本了解的普通读者'
+-                    };
+-                    
+-                    // 检查问题中的受众线索
+-                    if (question.includes('初学者') || question.includes('新手') || question.includes('入门')) {
+-                        return '初学者或对该领域刚入门的人，需要基础且易于理解的内容。';
+-                    } else if (question.includes('专家') || question.includes('高级') || question.includes('资深')) {
+-                        return '该领域的专业人士或资深从业者，可以理解高级概念和专业术语。';
+-                    } else if (question.includes('学生') || question.includes('教学')) {
+-                        return '学生或正在学习该领域的人，需要结构化且具有教育意义的内容。';
+-                    } else if (question.includes('团队') || question.includes('同事')) {
+-                        return '工作团队或专业环境中的同事，需要实用且可应用的内容。';
+-                    } else {
+-                        return audiences[theme] || audiences['一般'];
+-                    }
+-                }
+-                
+-                // 生成响应格式部分
+-                function generateResponse(question, questionType) {
+-                    const responseFormats = {
+-                        '操作指导': '步骤式指南，每步都有清晰的说明和可能的示例或图示。',
+-                        '对比分析': '结构化的对比，可能使用表格或并列要点来突出异同点。',
+-                        '信息汇总': '要点列表，每个要点简明扼要，覆盖主要信息。',
+-                        '内容创作': '完整的文本段落，组织良好，有逻辑结构。',
+-                        '概念解释': '清晰的定义，可能包含举例和实际应用场景。',
+-                        '建议推荐': '有优先级的建议列表，每个建议都有理由支持。',
+-                        '原因分析': '逻辑性的分析结构，可能使用因果关系说明。',
+-                        '一般查询': '直接明了的回答，提供必要的上下文和解释。'
+-                    };
+-                    
+-                    // 检查问题中的格式线索
+-                    if (question.includes('列表') || question.includes('清单')) {
+-                        return '使用简洁的要点列表或编号列表来组织信息。';
+-                    } else if (question.includes('表格') || question.includes('对比')) {
+-                        return '使用表格或结构化格式来展示信息，特别是对比数据。';
+-                    } else if (question.includes('步骤') || question.includes('流程') || question.includes('方法')) {
+-                        return '采用编号步骤的格式，每步都有明确的说明和指导。';
+-                    } else if (question.includes('详细') || question.includes('全面') || question.includes('深入')) {
+-                        return '使用完整的段落和小节，深入解释各个方面。';
+-                    } else if (question.includes('简洁') || question.includes('摘要')) {
+-                        return '提供简明扼要的回答，聚焦于最重要的信息。';
+-                    } else if (question.includes('例子') || question.includes('案例')) {
+-                        return '包含具体的例子或案例研究来说明概念。';
+-                    } else {
+-                        return responseFormats[questionType] || '结构清晰的回答，包含适当的段落和小标题。';
+-                    }
+-                }
+-                
+-                // 转换按钮点击事件
+-                convertBtn.addEventListener('click', () => {
+-                    const question = questionInput.value.trim();
+-                    if (!question) {
+-                        alert('请输入问题后再进行转换');
+-                        return;
+-                    }
+-                    
+-                    const costarFormat = convertToCostar(question);
+-                    if (costarFormat) {
+-                        updateOutput(costarFormat);
+-                    }
+-                });
+-                
+-                // 更新输出区域
+-                function updateOutput(costarFormat) {
+-                    const output = `
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-map-marker-alt"></i> C - CONTEXT (背景信息)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>${costarFormat.context}</p>
+-                            </div>
+-                        </div>
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-bullseye"></i> O - OBJECTIVE (任务目标)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>${costarFormat.objective}</p>
+-                            </div>
+-                        </div>
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-font"></i> S - STYLE (写作风格)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>${costarFormat.style}</p>
+-                            </div>
+-                        </div>
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-comment-dots"></i> T - TONE (情感语调)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>${costarFormat.tone}</p>
+-                            </div>
+-                        </div>
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-users"></i> A - AUDIENCE (受众)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>${costarFormat.audience}</p>
+-                            </div>
+-                        </div>
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-reply"></i> R - RESPONSE (响应格式)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>${costarFormat.response}</p>
+-                            </div>
+-                        </div>
+-                    `;
+-                    
+-                    outputContent.innerHTML = output;
+-                }
+-                
+-                // 清除按钮点击事件
+-                clearBtn.addEventListener('click', () => {
+-                    questionInput.value = '';
+-                    
+-                    // 重置输出区域
+-                    outputContent.innerHTML = `
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-map-marker-alt"></i> C - CONTEXT (背景信息)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>请提供与您的问题相关的背景信息，帮助我更好地理解您的具体情境。</p>
+-                            </div>
+-                        </div>
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-bullseye"></i> O - OBJECTIVE (任务目标)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>您希望通过这个问题达成什么具体目标？</p>
+-                            </div>
+-                        </div>
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-font"></i> S - STYLE (写作风格)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>您希望回答采用什么样的写作风格？(例如：学术、通俗、技术、简洁等)</p>
+-                            </div>
+-                        </div>
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-comment-dots"></i> T - TONE (情感语调)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>您期望回答的情感基调或语气是怎样的？(例如：正式、友好、严肃、幽默等)</p>
+-                            </div>
+-                        </div>
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-users"></i> A - AUDIENCE (受众)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>最终内容的目标读者是谁？(例如：专业人士、初学者、学生等)</p>
+-                            </div>
+-                        </div>
+-                        <div class="output-item">
+-                            <div class="output-item-header">
+-                                <i class="fas fa-reply"></i> R - RESPONSE (响应格式)
+-                            </div>
+-                            <div class="output-item-content">
+-                                <p>您期望的回应形式和结构是怎样的？(例如：列表、图表、分步指南等)</p>
+-                            </div>
+-                        </div>
+-                    `;
+-                });
+-                
+-                // 复制按钮功能
+-                copyBtn.addEventListener('click', () => {
+-                    // 创建一个临时文本区域
+-                    const textarea = document.createElement('textarea');
+-                    textarea.style.position = 'fixed';
+-                    textarea.style.opacity = 0;
+-                    
+-                    // 获取所有输出内容
+-                    const items = outputContent.querySelectorAll('.output-item');
+-                    let text = '';
+-                    
+-                    items.forEach(item => {
+-                        const header = item.querySelector('.output-item-header').textContent.trim();
+-                        const content = item.querySelector('.output-item-content').textContent.trim();
+-                        text += `${header}\n${content}\n\n`;
+-                    });
+-                    
+-                    textarea.value = text;
+-                    document.body.appendChild(textarea);
+-                    textarea.select();
+-                    
+-                    try {
+-                        document.execCommand('copy');
+-                        // 显示复制成功消息
+-                        copyMsg.classList.add('show');
+-                        setTimeout(() => {
+-                            copyMsg.classList.remove('show');
+-                        }, 2000);
+-                    } catch (err) {
+-                        console.error('复制失败:', err);
+-                    }
+-                    
+-                    document.body.removeChild(textarea);
+-                });
+-            });
+-        </script>
+-    </script>
++    <div class="panel" style="margin-top:18px;">
++      <h2><i class="fa-solid fa-lightbulb"></i> 使用指南</h2>
++      <div class="badge-grid">
++        <div class="badge"><strong>1. 准备表头</strong> Excel 第一行写明列名，例如：姓名、班级、日期、课堂表现、作业完成度、综合评价、阅读力…</div>
++        <div class="badge"><strong>2. 导入并勾选</strong> 上传文件后，系统会展示可选指标，勾选后即可进入预览。</div>
++        <div class="badge"><strong>3. 编辑文案</strong> 在模板中插入占位符（{列名}），即可为每位学生生成个性化寄语。</div>
++        <div class="badge"><strong>4. 一键出图</strong> 选择配色后可下载当前或批量生成全部学生的成长录 PNG 图片。</div>
++      </div>
++    </div>
++  </div>
++
++  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
++  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
++  <script>
++    const paletteMap = {
++      ocean: { label: '海岛薄荷', gradient: ['#e0f2fe', '#ccfbf1'], bar: '#0ea5e9' },
++      sunset: { label: '落日柔粉', gradient: ['#fff7ed', '#ffe4e6'], bar: '#fb7185' },
++      forest: { label: '森林清晨', gradient: ['#ecfdf3', '#d1fae5'], bar: '#22c55e' },
++      aurora: { label: '极光晨曦', gradient: ['#eef2ff', '#e0e7ff'], bar: '#8b5cf6' },
++    };
++
++    const sampleData = [
++      { 姓名: '李想', 班级: '初二(3)班', 日期: '2025-05-10', 课堂表现: 95, 作业完成度: '88%', 综合评价: '主动提问，理解深入', 阅读力: 87, 探究精神: 'A-' },
++      { 姓名: '王悦', 班级: '初二(3)班', 日期: '2025-05-10', 课堂表现: 89, 作业完成度: '92%', 综合评价: '书写规范，思路清晰', 阅读力: 90, 探究精神: 'A' },
++      { 姓名: '周浩', 班级: '初二(3)班', 日期: '2025-05-10', 课堂表现: 82, 作业完成度: '85%', 综合评价: '需要加强细节检查', 阅读力: 78, 探究精神: 'B+' },
++    ];
++
++    const state = {
++      students: [],
++      selectedIndex: 0,
++      selectedMetrics: [],
++      palette: 'ocean',
++    };
++
++    const dom = {
++      status: document.getElementById('status'),
++      metricOptions: document.getElementById('metric-options'),
++      studentList: document.getElementById('student-list'),
++      previewCard: document.getElementById('preview-card'),
++      studentName: document.getElementById('student-name'),
++      studentClass: document.getElementById('student-class'),
++      dateTag: document.getElementById('date-tag').querySelector('span'),
++      metricRow: document.getElementById('metric-row'),
++      commentText: document.getElementById('comment-text'),
++      commentTemplate: document.getElementById('comment-template'),
++      excelInput: document.getElementById('excel-input'),
++      paletteRow: document.getElementById('palette-row'),
++      downloadCurrent: document.getElementById('download-current'),
++      downloadAll: document.getElementById('download-all'),
++      useSample: document.getElementById('use-sample'),
++    };
++
++    function setStatus(text) { dom.status.textContent = text; }
++
++    function normalizeKey(key) { return String(key).replace(/\s+/g, '').toLowerCase(); }
++
++    function getValueByKey(obj, targetKey) {
++      const normalized = normalizeKey(targetKey);
++      for (const key of Object.keys(obj)) {
++        if (normalizeKey(key) === normalized) return obj[key];
++      }
++      return '';
++    }
++
++    function findIdentityKeys(sample) {
++      const keys = Object.keys(sample || {});
++      let nameKey = keys.find(k => normalizeKey(k).includes('姓名') || normalizeKey(k) === 'name') || keys[0];
++      let classKey = keys.find(k => normalizeKey(k).includes('班级') || normalizeKey(k).includes('class')) || keys[1] || nameKey;
++      let dateKey = keys.find(k => normalizeKey(k).includes('日期') || normalizeKey(k).includes('date') || normalizeKey(k).includes('时间'));
++      return { nameKey, classKey, dateKey };
++    }
++
++    function buildPaletteSwatches() {
++      dom.paletteRow.innerHTML = '';
++      Object.entries(paletteMap).forEach(([key, value]) => {
++        const swatch = document.createElement('div');
++        swatch.className = 'swatch' + (state.palette === key ? ' active' : '');
++        swatch.title = value.label;
++        swatch.addEventListener('click', () => {
++          state.palette = key;
++          buildPaletteSwatches();
++          updatePreview();
++        });
++        const gradient = document.createElement('span');
++        gradient.style.background = `linear-gradient(135deg, ${value.gradient[0]}, ${value.gradient[1]})`;
++        swatch.appendChild(gradient);
++        dom.paletteRow.appendChild(swatch);
++      });
++    }
++
++    function renderMetricOptions(columns) {
++      dom.metricOptions.innerHTML = '';
++      columns.forEach(col => {
++        const label = document.createElement('label');
++        label.className = 'badge';
++        const checkbox = document.createElement('input');
++        checkbox.type = 'checkbox';
++        checkbox.checked = state.selectedMetrics.includes(col);
++        checkbox.addEventListener('change', () => {
++          if (checkbox.checked) state.selectedMetrics.push(col);
++          else state.selectedMetrics = state.selectedMetrics.filter(item => item !== col);
++          updatePreview();
++        });
++        label.appendChild(checkbox);
++        label.appendChild(document.createTextNode(' ' + col));
++        dom.metricOptions.appendChild(label);
++      });
++    }
++
++    function renderStudentList() {
++      dom.studentList.innerHTML = '';
++      state.students.forEach((student, index) => {
++        const chip = document.createElement('div');
++        chip.className = 'student-chip' + (state.selectedIndex === index ? ' active' : '');
++        const { nameKey, classKey } = findIdentityKeys(student);
++        chip.textContent = `${getValueByKey(student, nameKey)} · ${getValueByKey(student, classKey)}`;
++        chip.addEventListener('click', () => {
++          state.selectedIndex = index;
++          renderStudentList();
++          updatePreview();
++        });
++        dom.studentList.appendChild(chip);
++      });
++    }
++
++    function metricColumns() {
++      if (!state.students.length) return [];
++      const keys = Object.keys(state.students[0]);
++      const { nameKey, classKey, dateKey } = findIdentityKeys(state.students[0]);
++      return keys.filter(k => ![normalizeKey(nameKey), normalizeKey(classKey), normalizeKey(dateKey)].includes(normalizeKey(k)));
++    }
++
++    function ensureMetricsSelected() {
++      const cols = metricColumns();
++      if (!state.selectedMetrics.length) {
++        state.selectedMetrics = cols.slice(0, 4);
++      }
++      renderMetricOptions(cols);
++    }
++
++    function renderMetrics(student) {
++      dom.metricRow.innerHTML = '';
++      if (!state.selectedMetrics.length) {
++        dom.metricRow.innerHTML = '<div class="metric">请勾选要展示的指标。</div>';
++        return;
++      }
++      state.selectedMetrics.forEach(key => {
++        const metricValue = getValueByKey(student, key);
++        const wrap = document.createElement('div');
++        wrap.className = 'metric';
++        const label = document.createElement('div');
++        label.className = 'label';
++        label.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${key}`;
++        wrap.appendChild(label);
++        const progressWrap = document.createElement('div');
++        progressWrap.className = 'progress';
++        const bar = document.createElement('span');
++        const numeric = parseFloat(String(metricValue).replace('%', ''));
++        if (!isNaN(numeric)) {
++          bar.style.width = `${Math.min(100, Math.max(0, numeric))}%`;
++        } else {
++          bar.style.width = '60%';
++          bar.style.opacity = 0.35;
++        }
++        bar.style.background = paletteMap[state.palette].bar;
++        progressWrap.appendChild(bar);
++        wrap.appendChild(progressWrap);
++        const value = document.createElement('div');
++        value.className = 'value';
++        value.textContent = metricValue || '—';
++        wrap.appendChild(value);
++        dom.metricRow.appendChild(wrap);
++      });
++    }
++
++    function replacePlaceholders(text, student) {
++      return text.replace(/\{([^}]+)\}/g, (_, key) => {
++        const val = getValueByKey(student, key.trim());
++        return val !== undefined && val !== null && val !== '' ? val : `{${key}}`;
++      });
++    }
++
++    function updatePreview() {
++      if (!state.students.length) return;
++      const student = state.students[state.selectedIndex] || state.students[0];
++      const { nameKey, classKey, dateKey } = findIdentityKeys(student);
++      dom.studentName.textContent = getValueByKey(student, nameKey) || '未命名学生';
++      dom.studentClass.textContent = getValueByKey(student, classKey) || '班级待补充';
++      dom.dateTag.textContent = getValueByKey(student, dateKey) || new Date().toISOString().slice(0, 10);
++      renderMetrics(student);
++      dom.commentText.textContent = replacePlaceholders(dom.commentTemplate.value, student);
++      dom.previewCard.className = `preview-card palette-${state.palette}`;
++      const gradient = paletteMap[state.palette].gradient;
++      dom.previewCard.style.background = `linear-gradient(135deg, ${gradient[0]}, ${gradient[1]})`;
++    }
++
++    function loadStudents(data) {
++      if (!data.length) { setStatus('文件为空，请检查。'); return; }
++      state.students = data;
++      state.selectedIndex = 0;
++      ensureMetricsSelected();
++      renderStudentList();
++      updatePreview();
++      setStatus(`已载入 ${data.length} 位学生。`);
++    }
++
++    function handleExcel(event) {
++      const file = event.target.files[0];
++      if (!file) return;
++      const reader = new FileReader();
++      reader.onload = e => {
++        const data = new Uint8Array(e.target.result);
++        const workbook = XLSX.read(data, { type: 'array' });
++        const firstSheet = workbook.SheetNames[0];
++        const sheet = workbook.Sheets[firstSheet];
++        const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
++        loadStudents(rows);
++      };
++      reader.readAsArrayBuffer(file);
++      setStatus(`正在读取 ${file.name}...`);
++    }
++
++    async function downloadImageForStudent(student, fileName) {
++      await new Promise(resolve => requestAnimationFrame(resolve));
++      return html2canvas(dom.previewCard, { backgroundColor: null, scale: 2 }).then(canvas => {
++        const link = document.createElement('a');
++        link.download = fileName;
++        link.href = canvas.toDataURL('image/png');
++        link.click();
++      });
++    }
++
++    async function handleDownloadCurrent() {
++      if (!state.students.length) return alert('请先导入数据');
++      const student = state.students[state.selectedIndex];
++      const nameKey = findIdentityKeys(student).nameKey;
++      const filename = `${getValueByKey(student, nameKey) || '学生'}-成长录.png`;
++      await downloadImageForStudent(student, filename);
++    }
++
++    async function handleDownloadAll() {
++      if (!state.students.length) return alert('请先导入数据');
++      setStatus('正在批量生成图片...');
++      for (let i = 0; i < state.students.length; i++) {
++        state.selectedIndex = i;
++        updatePreview();
++        const student = state.students[i];
++        const nameKey = findIdentityKeys(student).nameKey;
++        const filename = `${getValueByKey(student, nameKey) || '学生'}-成长录.png`;
++        await downloadImageForStudent(student, filename);
++      }
++      renderStudentList();
++      setStatus('批量生成完成');
++    }
++
++    function init() {
++      buildPaletteSwatches();
++      dom.excelInput.addEventListener('change', handleExcel);
++      dom.commentTemplate.addEventListener('input', updatePreview);
++      dom.downloadCurrent.addEventListener('click', handleDownloadCurrent);
++      dom.downloadAll.addEventListener('click', handleDownloadAll);
++      dom.useSample.addEventListener('click', () => loadStudents(sampleData));
++      loadStudents(sampleData);
++    }
++
++    init();
++  </script>
+ </body>
+ </html>
